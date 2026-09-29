@@ -30,70 +30,6 @@ app.add_middleware(
 app.include_router(user_router)
 
 
-# async def get_current_user_websocket(
-#     websocket: WebSocket,
-#     session: AsyncSession = Depends(db_helper.session_dependency),
-# ) -> User:
-#     # Достаем токен из query параметров
-#     token = websocket.query_params.get("token")
-#     if not token:
-#         # Если токена нет, кидаем HTTPException (FastAPI закроет соединение)
-#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Token missing")
-    
-#     users = UserRepository(session)
-#     service = AuthService(users)
-    
-#     try:
-#         current_user = await service.verify_token(token)
-#         if not current_user:
-#             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not found")
-#         return current_user
-#     except Exception:
-#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token")
-
-# @app.websocket("/ws")
-# async def websocket_endpoint(
-#     websocket: WebSocket,
-#     session: AsyncSession = Depends(db_helper.session_dependency),
-# ):
-#     # 1. ОБЯЗАТЕЛЬНО принимаем хендшейк первыми
-#     await websocket.accept() 
-
-#     users = UserRepository(session)
-#     service = AuthService(users)
-
-#     token = websocket.query_params.get("token")
-
-#     # 2. Если токена нет — закрываем с кодом 1008
-#     if not token:
-#         await websocket.close(code=1007)
-#         return
-
-#     try:
-#         current_user = await service.verify_token(token)
-#         # Если токен расшифрован, но юзер в БД не найден
-#         if not current_user:
-#             await websocket.close(code=1008)
-#             return
-#     except Exception:
-#         # 3. Если JWT невалиден или просрочен
-#         await websocket.close(code=1009)
-#         return
-
-#     # Если всё ок, регистрируем в менеджере
-#     await manager.connect(current_user, websocket)
-
-#     try:
-#         while True:
-#             data = await websocket.receive_text()
-#             print(f"{current_user.id}: {data} Онлайн")
-
-#     except WebSocketDisconnect:
-#         manager.disconnect(websocket)
-#         await manager.broadcast(
-#             f"Клиент {current_user.id} покинул чат"
-#         )
-
 async def authenticate_websocket(websocket: WebSocket) -> User | None:
     """Возвращает пользователя по токену из query или None."""
     token = websocket.query_params.get("token")
@@ -158,5 +94,5 @@ async def websocket_endpoint(websocket: WebSocket):
 # app.include_router(user_router)
 
 
-if __name__ == "__main__":
-    uvicorn.run("main:app")
+# if __name__ == "__main__":
+#     uvicorn.run("main:app")
